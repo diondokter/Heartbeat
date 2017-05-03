@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <LanguageTargets>$(MSBuildExtensionsPath)\$(VisualStudioVersion)\Bin\Microsoft.CSharp.targets</LanguageTargets>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <RootNamespace>WPFClient</RootNamespace>
+    <AssemblyName>WPFClient</AssemblyName>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
+    <Compile Update="Properties\Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+
+    <Page Include="**\*.xaml" SubType="Designer" Generator="MSBuild:Compile" />
+    <Compile Update="**\*.xaml.cs" SubType="Designer" DependentUpon="%(Filename)" />
+
+    <Resource Include="Fonts\*.otf" />    
+    <Resource Include="Images\*.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\Messages\Messages.csproj" />
+    <ProjectReference Include="..\Protocol\Protocol.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+</Project>

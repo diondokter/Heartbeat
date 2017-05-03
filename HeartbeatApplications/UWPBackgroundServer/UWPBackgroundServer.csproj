@@ -4,21 +4,21 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{FFF2A8B6-E1D9-41BD-85C9-F0F21CFD5D9C}</ProjectGuid>
+    <ProjectGuid>{E8D872A2-E7E4-4597-B967-8BEA2D9D571E}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PiServer</RootNamespace>
-    <AssemblyName>PiServer</AssemblyName>
+    <RootNamespace>UWPBackgroundServer</RootNamespace>
+    <AssemblyName>Heartbeat UWP Background Server</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <AllowCrossPlatformRetargeting>false</AllowCrossPlatformRetargeting>
-    <PackageCertificateKeyFile>Server_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>UWPBackgroundServer_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackage>true</AppxPackage>
     <ContainsStartupTask>true</ContainsStartupTask>
   </PropertyGroup>
@@ -91,11 +91,11 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
-  <PropertyGroup>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Logger.cs" />
+    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -103,7 +103,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Server_TemporaryKey.pfx" />
+    <None Include="UWPBackgroundServer_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
@@ -128,11 +128,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png">
       <InProject>false</InProject>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.2.2</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Server\Server.csproj">

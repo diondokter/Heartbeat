@@ -15,14 +15,17 @@ namespace Protocol
 	{
 		public static bool IsInitialized { get; private set; }
 
-		public static void Initialize()
+		public static void Initialize(params Assembly[] AdditionalAssemblies)
 		{
 			if (IsInitialized)
 			{
 				return;
 			}
 
-			TypeInfo[] MessageTypes = typeof(Message).GetTypeInfo().Assembly.ExportedTypes.Select(x => x.GetTypeInfo()).Where(x => x.IsSubclassOf(typeof(Message))).ToArray();
+			List<Assembly> TargetAssemblies = AdditionalAssemblies.ToList();
+			TargetAssemblies.Add(typeof(Message).GetTypeInfo().Assembly);
+
+			TypeInfo[] MessageTypes = TargetAssemblies.SelectMany(x => x.ExportedTypes).Select(x => x.GetTypeInfo()).Where(x => x.IsSubclassOf(typeof(Message))).ToArray();
 
 			Dictionary<Type, int> SubTypeCount = new Dictionary<Type, int>();
 

@@ -20,6 +20,15 @@ namespace Protocol
 				return Client?.GetStream();
 			}
 		}
+
+		public IPAddress ConnectedIP
+		{
+			get
+			{
+				return ((IPEndPoint)Client?.Client.RemoteEndPoint).Address;
+			}
+		}
+
 		private MessageProcessingModule[] ProcessingModules;
 
 		public NetworkClient(TcpClient Client, params MessageProcessingModule[] ProcessingModules)
