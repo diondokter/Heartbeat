@@ -2,14 +2,14 @@
 using Protocol;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Messages
 {
 	[ProtoContract]
-    public class LoginRequest : Request
-	{
+    public class CreateNewAccountRequest : Request
+    {
 		[ProtoMember(1)]
 		public string Username;
 
@@ -26,10 +26,10 @@ namespace Messages
 				_Password = Encoding.Unicode.GetString(new Rfc2898DeriveBytes(value, Encoding.Unicode.GetBytes(Username), 2048).GetBytes(512));
 			}
 		}
-    }
+	}
 
 	[ProtoContract]
-	public class LoginResponse : Response
+	public class CreateNewAccountResponse : Response
 	{
 		[ProtoMember(1)]
 		public bool Accepted;

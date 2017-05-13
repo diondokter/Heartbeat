@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -49,7 +50,14 @@ namespace Protocol
 			while (Listener != null)
 			{
 				_Clients.Add(new NetworkClient(await Listener.AcceptTcpClientAsync(), ProcessingModules));
+				Debug.WriteLine("New Connection");
 			}
+		}
+
+		public static void RemoveClient(NetworkClient Target)
+		{
+			Target.Dispose();
+			_Clients.Remove(Target);
 		}
 	}
 }

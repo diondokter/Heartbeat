@@ -29,6 +29,14 @@ namespace Protocol
 			}
 		}
 
+		public bool IsConnected
+		{
+			get
+			{
+				return Client.Connected;
+			}
+		}
+
 		private MessageProcessingModule[] ProcessingModules;
 
 		public NetworkClient(TcpClient Client, params MessageProcessingModule[] ProcessingModules)
@@ -36,26 +44,41 @@ namespace Protocol
 			this.Client = Client;
 			this.ProcessingModules = ProcessingModules;
 
-			new Task(async () => await LoopReceive()).Start();
+			new Task(LoopReceive).Start();
 		}
 
 		public NetworkClient(IPAddress ServerIP, int Port, params MessageProcessingModule[] ProcessingModules)
 		{
 			Client = new TcpClient(AddressFamily.InterNetwork);
-			Client.ConnectAsync(ServerIP, Port);
 			this.ProcessingModules = ProcessingModules;
 
-			new Task(async () => await LoopReceive()).Start();
+			Connect(ServerIP, Port);
+		}
+
+		private async void Connect(IPAddress ServerIP, int Port)
+		{
+			try
+			{
+				await Client.ConnectAsync(ServerIP, Port);
+				new Task(LoopReceive).Start();
+			}
+			catch
+			{
+				Debug.WriteLine("Couldn't connect");
+			}
 		}
 
 		public void Send(Message SendTarget)
 		{
-			if (Connection == null || !Client.Connected)
+			lock (Client)
 			{
-				throw new SocketException((int)SocketError.NotConnected);
-			}
+				if (Connection == null || !Client.Connected)
+				{
+					throw new SocketException((int)SocketError.NotConnected);
+				}
 
-			SendTarget.SerializeInto(Connection);
+				SendTarget.SerializeInto(Connection);
+			}
 		}
 
 		public async Task<T> Send<T>(Request SendTarget) where T:Response
@@ -65,7 +88,7 @@ namespace Protocol
 			T Response = null;
 			Stopwatch Watch = Stopwatch.StartNew();
 
-			while (Response == null && Watch.ElapsedMilliseconds < 2000)
+			while (Response == null && Watch.ElapsedMilliseconds < 200000)
 			{
 				lock (ResponseBuffer)
 				{
@@ -83,11 +106,17 @@ namespace Protocol
 			return Response;
 		}
 
-		private async Task LoopReceive()
+		private async void LoopReceive()
 		{
 			while (!Disposed)
 			{
-				Message ReceivedMessage = await Receive();
+				Message ReceivedMessage = Receive();
+
+				if (ReceivedMessage == null)
+				{
+					await Task.Delay(5);
+					continue;
+				}
 
 				if (ReceivedMessage is Response)
 				{
@@ -109,26 +138,37 @@ namespace Protocol
 			}
 		}
 
-		private async Task<Message> Receive()
+		private Message Receive()
 		{
-			if (Connection == null || !Client.Connected)
+			lock (Client)
 			{
-				throw new SocketException((int)SocketError.NotConnected);
-			}
+				if (Disposed)
+				{
+					return null;
+				}
 
-			while (!Connection.DataAvailable)
-			{
-				await Task.Delay(5);
-			}
+				if (Connection == null || !Client.Connected)
+				{
+					throw new SocketException((int)SocketError.NotConnected);
+				}
 
-			return Message.DeserializeFrom(Connection);
+				while (!Connection.DataAvailable)
+				{
+					return null;
+				}
+
+				return Message.DeserializeFrom(Connection);
+			}
 		}
 
 		private bool Disposed = false;
 		public void Dispose()
 		{
-			Client.Dispose();
-			Disposed = true;
+			lock (Client)
+			{
+				Client.Dispose();
+				Disposed = true;
+			}
 		}
 	}
 }

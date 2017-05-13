@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Protocol
 		public abstract Type AcceptedType { get; }
 		public void Process(Message ProcessTarget, NetworkClient Sender)
 		{
-			if (ProcessTarget.GetType() == AcceptedType)
+			if (ProcessTarget.GetType() == AcceptedType || ProcessTarget.GetType().GetTypeInfo().IsSubclassOf(AcceptedType))
 			{
 				Run(ProcessTarget, Sender);
 			}
@@ -36,6 +37,26 @@ namespace Protocol
 		}
 
 		protected abstract void Run(T RunTarget, NetworkClient Sender);
+	}
+
+	public abstract class GenericRequestProcessingModule<T> : MessageProcessingModule where T : Request
+	{
+		public override Type AcceptedType
+		{
+			get
+			{
+				return typeof(T);
+			}
+		}
+
+		protected override void Run(Message RunTarget, NetworkClient Sender)
+		{
+			Response Returned = Run((T)RunTarget, Sender);
+			Returned.ID = ((Request)RunTarget).ID;
+			Sender.Send(Returned);
+		}
+
+		protected abstract Response Run(T RunTarget, NetworkClient Sender);
 	}
 
 	public class DelegateMessageProcessingModule<T> : GenericMessageProcessingModule<T> where T : Message

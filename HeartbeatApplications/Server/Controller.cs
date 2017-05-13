@@ -11,12 +11,16 @@ namespace Server
 
 		public static void Start(int Port, ILogger Logger)
 		{
-			Message.Initialize(Assembly.Load(new AssemblyName(nameof(Messages))));
-
 			Controller.Logger = Logger;
 
+			Message.Initialize(Assembly.Load(new AssemblyName(nameof(Messages))));
+			DatabaseManager.Initialize();
+
 			NetworkServer.Start(Port,
-				new DelegateMessageProcessingModule<Message>((Value, Sender) => Logger?.OnLogReceived($"Received {Value} from {Sender}."))
+				new DelegateMessageProcessingModule<Message>((Value, Sender) => Logger?.OnLogReceived($"Received {Value} from {Sender.ConnectedIP}.")),
+				new LoginProcessingModule(),
+				new CreateAccountProcessingModule(),
+				new LogoutProcessingModule()
 				);
 		}
 
