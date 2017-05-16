@@ -26,7 +26,16 @@
 			<ColumnDefinition Width="*"/>
 		</Grid.ColumnDefinitions>
 
-		<charting:Chart x:Name="HeartbeatChart" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="3">
+			<AutoSuggestBox PlaceholderText="Search User"
+							QueryIcon="Find"
+							TextChanged="SearchUserTextChanged"
+							QuerySubmitted="SearchUserQuerySubmitted"
+							SuggestionChosen="SearchUserSuggestionChosen"/>
+		</StackPanel>
+		
+		
+		<charting:Chart x:Name="HeartbeatChart" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
 			<charting:LineSeries Title="Heartbeat (bpm)" IndependentValuePath="Time" DependentValuePath="Value" AnimationSequence="FirstToLast" IsSelectionEnabled="True">
 				
@@ -41,5 +50,7 @@
 			</charting:LineSeries>
 		</charting:Chart>
 
+		
+		
 	</Grid>
 </Page>

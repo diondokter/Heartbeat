@@ -52,8 +52,16 @@ namespace Client
 
 		public static void Logout()
 		{
-			Connection.Send(new LogoutMessage());
-			Connection.Dispose();
+			if (_Connection != null && _Connection.IsConnected)
+			{
+				Connection.Send(new LogoutMessage());
+				Connection.Dispose();
+			}
+		}
+
+		public static async Task<string[]> GetViewableUsers(int MaxCount, string WithContainingValue)
+		{
+			return (await Connection.Send<GetViewableUsersResponse>(new GetViewableUsersRequest() { MaxCount = MaxCount, WithContaining = WithContainingValue })).Usernames;
 		}
     }
 }

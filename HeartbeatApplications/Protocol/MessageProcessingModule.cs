@@ -52,8 +52,11 @@ namespace Protocol
 		protected override void Run(Message RunTarget, NetworkClient Sender)
 		{
 			Response Returned = Run((T)RunTarget, Sender);
-			Returned.ID = ((Request)RunTarget).ID;
-			Sender.Send(Returned);
+			if (Returned != null)
+			{
+				Returned.ID = ((Request)RunTarget).ID;
+				Sender.Send(Returned);
+			}
 		}
 
 		protected abstract Response Run(T RunTarget, NetworkClient Sender);

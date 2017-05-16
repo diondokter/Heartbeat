@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,27 @@ namespace UWPClient
 			DateTimeAxis XAxis = (DateTimeAxis)((LineSeries)HeartbeatChart.Series[0]).ActualIndependentAxis;
 			XAxis.Interval = (XAxis.ActualMaximum.Value - XAxis.ActualMinimum.Value).TotalDays / 3;
 			XAxis.IntervalType = DateTimeIntervalType.Days;
+		}
+
+		private async void SearchUserTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+		{
+			sender.ItemsSource = await NetworkManager.GetViewableUsers(10, sender.Text);
+		}
+
+		private void SearchUserQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+		{
+			if (args.ChosenSuggestion != null)
+			{
+				sender.Text = args.ChosenSuggestion.ToString();
+			}
+		}
+
+		private void SearchUserSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+		{
+			if (args.SelectedItem != null)
+			{
+				sender.Text = args.SelectedItem.ToString();
+			}
 		}
 	}
 }

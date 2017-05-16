@@ -20,7 +20,8 @@ namespace Server
 				new DelegateMessageProcessingModule<Message>((Value, Sender) => Logger?.OnLogReceived($"Received {Value} from {Sender.ConnectedIP}.")),
 				new LoginProcessingModule(),
 				new CreateAccountProcessingModule(),
-				new LogoutProcessingModule()
+				new LogoutProcessingModule(),
+				new GetViewableUsersProcessingModule()
 				);
 		}
 

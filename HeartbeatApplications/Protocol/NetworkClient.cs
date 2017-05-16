@@ -17,6 +17,11 @@ namespace Protocol
 		{
 			get
 			{
+				if (Disposed)
+				{
+					return null;
+				}
+
 				return Client?.GetStream();
 			}
 		}
@@ -72,7 +77,7 @@ namespace Protocol
 		{
 			lock (Client)
 			{
-				if (Connection == null || !Client.Connected)
+				if (!Client.Connected || Connection == null)
 				{
 					throw new SocketException((int)SocketError.NotConnected);
 				}
@@ -88,7 +93,7 @@ namespace Protocol
 			T Response = null;
 			Stopwatch Watch = Stopwatch.StartNew();
 
-			while (Response == null && Watch.ElapsedMilliseconds < 200000)
+			while (Response == null && Watch.ElapsedMilliseconds < 2000)
 			{
 				lock (ResponseBuffer)
 				{

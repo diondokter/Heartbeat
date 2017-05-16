@@ -138,7 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj">
-      <Project>{9C1BC186-524A-4235-9168-1284070139DC}</Project>
+      <Project>{9c1bc186-524a-4235-9168-1284070139dc}</Project>
       <Name>Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
