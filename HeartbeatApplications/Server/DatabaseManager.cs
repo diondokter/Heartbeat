@@ -75,24 +75,24 @@ namespace Server
 			return DB.Table<UserViewPermission>().Any(x => x.Username == Caller && x.ViewedUsername == Username);
 		}
 
-		public static UserData[] GetUserData(string Caller, string Username)
+		public static UserData[] GetUserData(string Caller, string TargetUsername)
 		{
-			if (!HasViewUserPermission(Caller, Username))
+			if (!HasViewUserPermission(Caller, TargetUsername))
 			{
 				return null;
 			}
 
-			return DB.Table<UserData>().Where(x => x.Username == Username).ToArray();
+			return DB.Table<UserData>().Where(x => x.Username == TargetUsername).ToArray();
 		}
 
-		public static UserData[] GetUserData(string Caller, string Username, DateTime LowerTime, DateTime UpperTime)
+		public static UserData[] GetUserData(string Caller, string TargetUsername, DateTime StartDate, DateTime EndDate)
 		{
-			if (!HasViewUserPermission(Caller, Username))
+			if (!HasViewUserPermission(Caller, TargetUsername))
 			{
 				return null;
 			}
 
-			return DB.Table<UserData>().Where(x => x.Username == Username && x.Time >= LowerTime && x.Time <= UpperTime).ToArray();
+			return DB.Table<UserData>().Where(x => x.Username == TargetUsername && x.Time.Date >= StartDate.Date && x.Time.Date <= EndDate.Date).ToArray();
 		}
 	}
 }

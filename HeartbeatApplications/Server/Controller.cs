@@ -21,7 +21,8 @@ namespace Server
 				new LoginProcessingModule(),
 				new CreateAccountProcessingModule(),
 				new LogoutProcessingModule(),
-				new GetViewableUsersProcessingModule()
+				new GetViewableUsersProcessingModule(),
+				new GetUserDataProcessingModule()
 				);
 		}
 

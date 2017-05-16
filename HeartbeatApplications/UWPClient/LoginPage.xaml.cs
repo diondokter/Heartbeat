@@ -33,8 +33,13 @@ namespace UWPClient
 			this.InitializeComponent();
 		}
 
+#if DEBUG
+		private string Username = "Dion Dokter";
+		private string Password = "Qwerty01";
+#else
 		private string Username;
 		private string Password;
+#endif
 
 		private void OnUsernameChanged(object sender, TextChangedEventArgs e)
 		{

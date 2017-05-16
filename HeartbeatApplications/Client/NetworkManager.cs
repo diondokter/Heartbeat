@@ -8,6 +8,8 @@ namespace Client
 {
     public static class NetworkManager
     {
+		public static string CurrentUsername { get; private set; }
+
 		private static NetworkClient _Connection;
 		private static NetworkClient Connection
 		{
@@ -27,6 +29,16 @@ namespace Client
 			try
 			{
 				LoginResponse Response = await Connection.Send<LoginResponse>(new LoginRequest() { Username = Username, Password = Password });
+
+				if (Response.Accepted)
+				{
+					CurrentUsername = Username;
+				}
+				else
+				{
+					_Connection.Dispose();
+					_Connection = null;
+				}
 
 				return (Response.Accepted, Response.Reason);
 			}
@@ -61,7 +73,14 @@ namespace Client
 
 		public static async Task<string[]> GetViewableUsers(int MaxCount, string WithContainingValue)
 		{
-			return (await Connection.Send<GetViewableUsersResponse>(new GetViewableUsersRequest() { MaxCount = MaxCount, WithContaining = WithContainingValue })).Usernames;
+			return (await Connection.Send<GetViewableUsersResponse>(new GetViewableUsersRequest() { MaxCount = MaxCount, WithContaining = WithContainingValue })).Usernames ?? new string[0];
+		}
+
+		public static async Task<UserData[]> GetUserData(string TargetUsername, DateTime StartDate, DateTime EndDate)
+		{
+			GetUserDataResponse Response = await Connection.Send<GetUserDataResponse>(new GetUserDataRequest() { TargetUsername = TargetUsername, StartDate = StartDate, EndDate = EndDate });
+
+			return Response.Data ?? new UserData[0];
 		}
     }
 }

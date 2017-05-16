@@ -7,7 +7,7 @@ using System.Text;
 namespace Messages
 {
 	[ProtoContract]
-	public class UserData
+	public struct UserData
 	{
 		[MaxLength(64)]
 		[ProtoMember(1)]

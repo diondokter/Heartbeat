@@ -73,7 +73,7 @@ namespace Protocol
 			}
 		}
 
-		public void Send(Message SendTarget)
+		public void Send(Message Value)
 		{
 			lock (Client)
 			{
@@ -82,13 +82,13 @@ namespace Protocol
 					throw new SocketException((int)SocketError.NotConnected);
 				}
 
-				SendTarget.SerializeInto(Connection);
+				Value.SerializeInto(Connection);
 			}
 		}
 
-		public async Task<T> Send<T>(Request SendTarget) where T:Response
+		public async Task<T> Send<T>(Request Value) where T:Response
 		{
-			Send(SendTarget);
+			Send(Value);
 
 			T Response = null;
 			Stopwatch Watch = Stopwatch.StartNew();
@@ -97,7 +97,7 @@ namespace Protocol
 			{
 				lock (ResponseBuffer)
 				{
-					Response = ResponseBuffer.OfType<T>().FirstOrDefault(x => x.ID == SendTarget.ID);
+					Response = ResponseBuffer.OfType<T>().FirstOrDefault(x => x.ID == Value.ID);
 					if (Response != null)
 					{
 						ResponseBuffer.Remove(Response);
