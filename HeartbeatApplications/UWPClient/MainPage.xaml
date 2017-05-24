@@ -11,57 +11,77 @@
 	<Grid Background="{ThemeResource SystemChromeLowColor}">
 
 		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
+			<RowDefinition Height="10"/>
 			<RowDefinition Height="30*"/>
-			<RowDefinition Height="*"/>
+			<RowDefinition Height="10"/>
 			<RowDefinition Height="30*"/>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="32"/>
-			<RowDefinition Height="*"/>
+			<RowDefinition Height="10"/>
+			<RowDefinition Height="37"/>
+			<RowDefinition Height="10"/>
 		</Grid.RowDefinitions>
 
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="10"/>
+			<ColumnDefinition Width="10*"/>
+			<ColumnDefinition Width="10"/>
 			<ColumnDefinition Width="20*"/>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="20*"/>
-			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="10"/>
 		</Grid.ColumnDefinitions>
 
-		<ScrollViewer Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Stretch">
-			<StackPanel>
-				<AutoSuggestBox x:Name="ChooseUserBox"
-								PlaceholderText="Choose User"
-								QueryIcon="Find"
-								TextChanged="SearchUserTextChanged"
-								QuerySubmitted="SearchUserQuerySubmitted"/>
-			
-				<Button Margin="0,10" Content="View yourself" HorizontalAlignment="Stretch" Click="OnViewYourselfClick"/>
+		<StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Stretch">
+			<AutoSuggestBox x:Name="ChooseUserBox"
+							PlaceholderText="Choose User"
+							QueryIcon="Find"
+							TextChanged="SearchUserTextChanged"
+							QuerySubmitted="SearchUserQuerySubmitted"/>
 
-				<TextBlock Text="Start date"/>
-				<DatePicker x:Name="StartDatePicker" DateChanged="OnStartDatePickerChanged"/>
-				<TextBlock Text="End date"/>
-				<DatePicker x:Name="EndDatePicker" DateChanged="OnEndDatePickerChanged"/>
-			</StackPanel>
+			<Button Margin="0,10"
+					Content="View yourself"
+					HorizontalAlignment="Stretch"
+					Click="OnViewYourselfClick"/>
 
-		</ScrollViewer>
+			<TextBlock Text="Start date"/>
+			<DatePicker x:Name="StartDatePicker" 
+						DateChanged="OnStartDatePickerChanged"
+						HorizontalAlignment="Stretch" MinWidth="0"/>
+			<TextBlock Text="End date"/>
+			<DatePicker x:Name="EndDatePicker"
+						DateChanged="OnEndDatePickerChanged"
+						HorizontalAlignment="Stretch" MinWidth="0"/>
 
-		<StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
-			<Button>
-				<SymbolIcon Symbol="Setting"/>
-			</Button>
+			<Button Margin="0,10"
+					HorizontalAlignment="Stretch"
+					x:Name="ConnectToBaseStationButton"
+					Content="Connect to Base Station"
+					IsEnabled="False"/>
+
+			<Button Content="Update data"
+					HorizontalAlignment="Stretch"
+					Click="OnUpdateDataClick"/>
 		</StackPanel>
 
 
+		<Grid Grid.Row="5" Grid.Column="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="40"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			
+			<Button VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Click="OnUserSettingsButtonClick">
+				<SymbolIcon Symbol="Setting" ToolTipService.ToolTip="User Settings"/>
+			</Button>
+		</Grid>
+
+
 		<StackPanel Grid.Column="3" Grid.Row="1">
-			<TextBlock x:Name="CurrentlyViewingDisplay" Text="Currently displayed user: XXXXXXXXXXXXXX" TextWrapping="WrapWholeWords" HorizontalAlignment="Stretch"/>
+			<TextBlock x:Name="CurrentlyViewingDisplay" Text="Currently viewed user: XXXXXXXXXXXXXX" TextWrapping="WrapWholeWords" HorizontalAlignment="Stretch"/>
 		</StackPanel>
 
 		<ScrollViewer Grid.Column="3" Grid.Row="3" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
 			<charting:Chart x:Name="HeartbeatChart" MinHeight="300">
 
-				<charting:LineSeries Title="Heartbeat (bpm)" IndependentValuePath="Time" DependentValuePath="Value" AnimationSequence="FirstToLast" IsSelectionEnabled="True">
+				<charting:LineSeries Title="bpm" IndependentValuePath="Time" DependentValuePath="Value">
 
 					<charting:LineSeries.DataPointStyle>
 						<Style TargetType="charting:LineDataPoint">
@@ -75,8 +95,6 @@
 			</charting:Chart>
 
 		</ScrollViewer>
-
-
 
 	</Grid>
 </Page>

@@ -31,6 +31,16 @@ namespace Server
 			if (DB.Table<User>().FirstOrDefault(x => x.Username == Value.Username) == null)
 			{
 				DB.Insert(Value);
+
+				for (int i = 0; i < 100; i++)
+				{
+					AddUserData(new UserData()
+					{
+						Username = Value.Username,
+						Time = DateTime.Now.AddHours(-i),
+						Value = i
+					});
+				}
 				DB.Commit();
 				return true;
 			}
@@ -55,14 +65,49 @@ namespace Server
 			DB.Commit();
 		}
 
-		public static IEnumerable<string> GetViewPermissions(string Caller)
+		public static string AddUserViewPermission(string Caller, string Username)
 		{
-			return DB.Table<UserViewPermission>().Where(x => x.Username == Caller).Select(x => x.ViewedUsername).Concat(new string[] { Caller });
+			bool AlreadyExists = DB.Table<UserViewPermission>().Any(x => x.Username == Username && x.ViewedUsername == Caller);
+
+			if (!AlreadyExists)
+			{
+				bool UserExists = DB.Table<User>().Any(x => x.Username == Username);
+
+				if (UserExists)
+				{
+					DB.Insert(new UserViewPermission() { Username = Username, ViewedUsername = Caller });
+					DB.Commit();
+
+					return null;
+				}
+				else
+				{
+					return $"{Username} is not recognized.";
+				}
+			}
+			else
+			{
+				return $"{Username} already has viewing permission for {Caller}.";
+			}
 		}
 
-		public static IEnumerable<string> GetViewPermissionsContaining(string Caller, string Value, int MaxAmount)
+		public static void RemoveUserViewPermission(string Caller, string Username)
 		{
-			return GetViewPermissions(Caller).Where(x => x.Contains(Value)).Take(MaxAmount);
+			DB.Table<UserViewPermission>().Delete(x => x.Username == Caller && x.ViewedUsername == Username);
+			DB.Commit();
+		}
+
+		public static List<string> GetViewPermissions(string Caller)
+		{
+			List<UserViewPermission> Permissions = DB.Table<UserViewPermission>().Where(x => x.Username == Caller).ToList();
+			List<string> PermissionNames = Permissions.Select(x => x.ViewedUsername).ToList();
+			PermissionNames.Add(Caller);
+			return PermissionNames;
+		}
+
+		public static string[] GetViewPermissionsContaining(string Caller, string Value, int MaxAmount)
+		{
+			return GetViewPermissions(Caller).Where(x => x.Contains(Value)).Take(MaxAmount).ToArray();
 		}
 
 		public static bool HasViewUserPermission(string Caller, string Username)
@@ -92,7 +137,9 @@ namespace Server
 				return null;
 			}
 
-			return DB.Table<UserData>().Where(x => x.Username == TargetUsername && x.Time.Date >= StartDate.Date && x.Time.Date <= EndDate.Date).ToArray();
+			DateTime RealEnddate = EndDate.AddDays(1).AddMilliseconds(-1);
+
+			return DB.Table<UserData>().Where(x => x.Username == TargetUsername && x.Time >= StartDate.Date && x.Time <= RealEnddate).ToArray();
 		}
 	}
 }

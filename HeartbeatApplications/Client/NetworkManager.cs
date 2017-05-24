@@ -73,14 +73,26 @@ namespace Client
 
 		public static async Task<string[]> GetViewableUsers(int MaxCount, string WithContainingValue)
 		{
-			return (await Connection.Send<GetViewableUsersResponse>(new GetViewableUsersRequest() { MaxCount = MaxCount, WithContaining = WithContainingValue })).Usernames ?? new string[0];
+			GetViewableUsersResponse Response = await Connection.Send<GetViewableUsersResponse>(new GetViewableUsersRequest() { MaxCount = MaxCount, WithContaining = WithContainingValue });
+			return Response.Usernames ?? new string[0];
 		}
 
 		public static async Task<UserData[]> GetUserData(string TargetUsername, DateTime StartDate, DateTime EndDate)
 		{
 			GetUserDataResponse Response = await Connection.Send<GetUserDataResponse>(new GetUserDataRequest() { TargetUsername = TargetUsername, StartDate = StartDate, EndDate = EndDate });
 
-			return Response.Data ?? new UserData[0];
+			return Response?.Data ?? new UserData[0];
 		}
-    }
+
+		public static async Task<string> AddUserViewPermission(string Username)
+		{
+			AddUserViewPermissionResponse Response = await Connection.Send<AddUserViewPermissionResponse>(new AddUserViewPermissionRequest() { Username = Username });
+			return Response.FailReason;
+		}
+
+		public static void RemoveUserViewPermission(string Username)
+		{
+			Connection.Send(new RemoveUserViewPermissionMessage() { Username = Username });
+		}
+	}
 }

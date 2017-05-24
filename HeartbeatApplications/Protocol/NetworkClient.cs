@@ -26,6 +26,8 @@ namespace Protocol
 			}
 		}
 
+		private static DelegateMessageProcessingModule<PingRequest> PingProcessingModule = new DelegateMessageProcessingModule<PingRequest>((RunTarget, Sender) => Sender.Send(new PingResponse() { Time = RunTarget.Time }));
+
 		public IPAddress ConnectedIP
 		{
 			get
@@ -62,22 +64,15 @@ namespace Protocol
 
 		private async void Connect(IPAddress ServerIP, int Port)
 		{
-			try
-			{
-				await Client.ConnectAsync(ServerIP, Port);
-				new Task(LoopReceive).Start();
-			}
-			catch
-			{
-				Debug.WriteLine("Couldn't connect");
-			}
+			await Client.ConnectAsync(ServerIP, Port);
+			new Task(LoopReceive).Start();
 		}
 
 		public void Send(Message Value)
 		{
 			lock (Client)
 			{
-				if (!Client.Connected || Connection == null)
+				if (!Client.Connected || !Client.Client.Connected || Connection == null)
 				{
 					throw new SocketException((int)SocketError.NotConnected);
 				}
@@ -86,14 +81,14 @@ namespace Protocol
 			}
 		}
 
-		public async Task<T> Send<T>(Request Value) where T:Response
+		public async Task<T> Send<T>(Request Value, long WaitTime = 2000) where T:Response
 		{
 			Send(Value);
 
 			T Response = null;
 			Stopwatch Watch = Stopwatch.StartNew();
 
-			while (Response == null && Watch.ElapsedMilliseconds < 2000)
+			while (Response == null && Watch.ElapsedMilliseconds < WaitTime)
 			{
 				lock (ResponseBuffer)
 				{
@@ -134,6 +129,7 @@ namespace Protocol
 				{
 					new Task(() =>
 					{
+						PingProcessingModule.Process(ReceivedMessage, this);
 						for (int i = 0; i < ProcessingModules.Length; i++)
 						{
 							ProcessingModules[i].Process(ReceivedMessage, this);

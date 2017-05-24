@@ -18,7 +18,10 @@ namespace Server
 				return null;
 			}
 
-			return new GetViewableUsersResponse() { Usernames = DatabaseManager.GetViewPermissionsContaining(Caller, RunTarget.WithContaining, RunTarget.MaxCount).ToArray() };
+			GetViewableUsersResponse Response = new GetViewableUsersResponse();
+			Response.Usernames = DatabaseManager.GetViewPermissionsContaining(Caller, RunTarget.WithContaining, RunTarget.MaxCount);
+
+			return Response;
 		}
 	}
 }

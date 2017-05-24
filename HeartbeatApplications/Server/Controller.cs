@@ -22,7 +22,9 @@ namespace Server
 				new CreateAccountProcessingModule(),
 				new LogoutProcessingModule(),
 				new GetViewableUsersProcessingModule(),
-				new GetUserDataProcessingModule()
+				new GetUserDataProcessingModule(),
+				new AddUserViewPermissionProcessingModule(),
+				new RemoveUserViewPermissionProcessingModule()
 				);
 		}
 

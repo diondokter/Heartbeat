@@ -11,7 +11,7 @@ namespace Server
 	{
 		protected override Response Run(GetUserDataRequest RunTarget, NetworkClient Sender)
 		{
-			UserData[] Data = DatabaseManager.GetUserData(User.UserConnections.First(x => x.Client == Sender).Username, RunTarget.TargetUsername, RunTarget.StartDate, RunTarget.EndDate);
+			UserData[] Data = DatabaseManager.GetUserData(User.GetUsername(Sender), RunTarget.TargetUsername, RunTarget.StartDate, RunTarget.EndDate);
 
 			Controller.Logger.OnLogReceived($"Sending {RunTarget.TargetUsername}'s {Data.Length} data values from {RunTarget.StartDate.Date} to {RunTarget.EndDate.Date}.");
 

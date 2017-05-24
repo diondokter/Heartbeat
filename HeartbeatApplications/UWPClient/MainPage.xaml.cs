@@ -21,7 +21,10 @@ namespace UWPClient
 {
 	public sealed partial class MainPage : Page
 	{
-		private string ChosenUsername;
+		private static string ChosenUsername;
+		private static DateTimeOffset StartDate;
+		private static DateTimeOffset EndDate;
+		private static IEnumerable<UserData> Data;
 
 		public MainPage()
 		{
@@ -31,21 +34,46 @@ namespace UWPClient
 
 		private void OnLoaded(object sender, RoutedEventArgs e)
 		{
-			StartDatePicker.Date = StartDatePicker.Date.AddDays(-7);
-			OnViewYourselfClick(null, null);
+			if (ChosenUsername == null)
+			{
+				StartDate = DateTime.Today.AddDays(-7);
+				EndDate = DateTime.Today;
+
+				StartDatePicker.Date = StartDate;
+				EndDatePicker.Date = EndDate;
+				OnViewYourselfClick(null, null);
+			}
+			else
+			{
+				StartDatePicker.Date = StartDate;
+				EndDatePicker.Date = EndDate;
+				ChooseUser(ChosenUsername, false);
+				LoadData();
+			}
 		}
 
-		private void LoadChartData(IEnumerable<UserData> Data)
+		private void LoadData()
 		{
+			if (Data.Count() == 0)
+			{
+				Data = null;
+			}
+
 			((DataPointSeries)HeartbeatChart.Series[0]).ItemsSource = Data;
 
-			DateTimeAxis XAxis = (DateTimeAxis)((LineSeries)HeartbeatChart.Series[0]).ActualIndependentAxis;
-
-			if (XAxis != null)
+			if (Data != null)
 			{
-				XAxis.Interval = (XAxis.ActualMaximum.Value - XAxis.ActualMinimum.Value).TotalDays / 3;
-				XAxis.IntervalType = DateTimeIntervalType.Days;
+				DateTimeAxis XAxis = (DateTimeAxis)((LineSeries)HeartbeatChart.Series[0]).ActualIndependentAxis;
+
+				XAxis.Minimum = null;
+				XAxis.Maximum = null;
+
+				XAxis.Minimum = StartDate.DateTime;
+				XAxis.Maximum = EndDate.DateTime;
+				XAxis.IntervalType = DateTimeIntervalType.Auto;
 			}
+
+			CurrentlyViewingDisplay.Text = $"Currently viewing user: {ChosenUsername}";
 		}
 
 		private async void SearchUserTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -68,7 +96,7 @@ namespace UWPClient
 			ChooseUser(sender.Text);
 		}
 
-		private void ChooseUser(string Username)
+		private void ChooseUser(string Username, bool Update = true)
 		{
 			if (string.IsNullOrWhiteSpace(Username))
 			{
@@ -76,12 +104,15 @@ namespace UWPClient
 			}
 
 			ChosenUsername = Username;
-			CurrentlyViewingDisplay.Text = $"Currently viewing user: {Username}";
+			ChooseUserBox.Text = ChosenUsername;
 
 			//Unfocus the searchbox by focussing on the page
 			HeartbeatChart.Focus(FocusState.Programmatic);
 
-			UpdateUserData();
+			if (Update)
+			{
+				UpdateData();
+			}
 		}
 
 		private void OnViewYourselfClick(object sender, RoutedEventArgs e)
@@ -90,16 +121,15 @@ namespace UWPClient
 			ChooseUser(ChooseUserBox.Text);
 		}
 
-		private async void UpdateUserData()
+		private async void UpdateData()
 		{
 			if (string.IsNullOrWhiteSpace(ChosenUsername))
 			{
 				return;
 			}
 
-			UserData[] Data = await NetworkManager.GetUserData(ChosenUsername, StartDatePicker.Date.Date, EndDatePicker.Date.Date);
-
-			LoadChartData(Data);
+			Data = await NetworkManager.GetUserData(ChosenUsername, StartDatePicker.Date.Date, EndDatePicker.Date.Date);
+			LoadData();
 		}
 
 		private void OnEndDatePickerChanged(object sender, DatePickerValueChangedEventArgs e)
@@ -108,6 +138,8 @@ namespace UWPClient
 			{
 				EndDatePicker.Date = StartDatePicker.Date;
 			}
+
+			EndDate = EndDate.Date;
 		}
 
 		private void OnStartDatePickerChanged(object sender, DatePickerValueChangedEventArgs e)
@@ -116,6 +148,18 @@ namespace UWPClient
 			{
 				StartDatePicker.Date = EndDatePicker.Date;
 			}
+
+			StartDate = StartDatePicker.Date;
+		}
+
+		private void OnUpdateDataClick(object sender, RoutedEventArgs e)
+		{
+			UpdateData();
+		}
+
+		private void OnUserSettingsButtonClick(object sender, RoutedEventArgs e)
+		{
+			App.RootFrame.Navigate(typeof(UserSettingsPage));
 		}
 	}
 }

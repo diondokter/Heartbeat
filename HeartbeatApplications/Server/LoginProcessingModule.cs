@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Server
 {
@@ -24,10 +25,30 @@ namespace Server
 				return new LoginResponse() { Accepted = false, Reason = "Wrong password." };
 			}
 
-			if (User.UserConnections.Any(x => x.Username == TargetUser.Username))
+			(string Username, NetworkClient Client) ConnectedUser = User.UserConnections.FirstOrDefault(x => x.Username == TargetUser.Username);
+			if (ConnectedUser.Client != null)
 			{
-				Controller.Logger.OnLogReceived($"Login attempt for {RunTarget.Username}. Not accepted because account is already logged in.");
-				return new LoginResponse() { Accepted = false, Reason = "User is already logged in." };
+				Task<PingResponse> SendTask = ConnectedUser.Client.Send<PingResponse>(new PingRequest(), 1000);
+				try
+				{
+					SendTask.Wait();
+				}
+				catch (AggregateException)
+				{
+					SendTask = null;
+				}
+
+				if (SendTask?.Result != null)
+				{
+					Controller.Logger.OnLogReceived($"Login attempt for {RunTarget.Username}. Not accepted because account is already logged in.");
+					return new LoginResponse() { Accepted = false, Reason = "User is already logged in." };
+				}
+				else
+				{
+					Controller.Logger.OnLogReceived($"Login attempt for {RunTarget.Username}. There was still a connection to it, but it did not respond. The connection has been severed in favor of the new login.");
+					ConnectedUser.Client.Dispose();
+					User.UserConnections.Remove(ConnectedUser);
+				}
 			}
 
 			User.UserConnections.Add((RunTarget.Username, Sender));
