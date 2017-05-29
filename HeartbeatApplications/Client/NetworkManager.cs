@@ -77,6 +77,12 @@ namespace Client
 			return Response.Usernames ?? new string[0];
 		}
 
+		public static async Task<string[]> GetViewingUsers()
+		{
+			GetViewingUsersResponse Response = await Connection.Send<GetViewingUsersResponse>(new GetViewingUsersRequest());
+			return Response.Usernames ?? new string[0];
+		}
+
 		public static async Task<UserData[]> GetUserData(string TargetUsername, DateTime StartDate, DateTime EndDate)
 		{
 			GetUserDataResponse Response = await Connection.Send<GetUserDataResponse>(new GetUserDataRequest() { TargetUsername = TargetUsername, StartDate = StartDate, EndDate = EndDate });
@@ -86,6 +92,11 @@ namespace Client
 
 		public static async Task<string> AddUserViewPermission(string Username)
 		{
+			if (Username == CurrentUsername)
+			{
+				return "You can't add yourself.";
+			}
+
 			AddUserViewPermissionResponse Response = await Connection.Send<AddUserViewPermissionResponse>(new AddUserViewPermissionRequest() { Username = Username });
 			return Response.FailReason;
 		}

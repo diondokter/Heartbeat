@@ -13,6 +13,6 @@
     SecondaryButtonClick="OnCancelButtonClick">
 
     <Grid>
-		<TextBox PlaceholderText="Username" TextChanged="OnTextChanged"/>
+		<TextBox PlaceholderText="Username" TextChanged="OnTextChanged" KeyDown="OnTextBoxKeyDown"/>
 	</Grid>
 </ContentDialog>

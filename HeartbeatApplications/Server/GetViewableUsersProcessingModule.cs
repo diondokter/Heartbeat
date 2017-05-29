@@ -19,7 +19,7 @@ namespace Server
 			}
 
 			GetViewableUsersResponse Response = new GetViewableUsersResponse();
-			Response.Usernames = DatabaseManager.GetViewPermissionsContaining(Caller, RunTarget.WithContaining, RunTarget.MaxCount);
+			Response.Usernames = DatabaseManager.GetViewablePermissionsContaining(Caller, RunTarget.WithContaining, RunTarget.MaxCount);
 
 			return Response;
 		}

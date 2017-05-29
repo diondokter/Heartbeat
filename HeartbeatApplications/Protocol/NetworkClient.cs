@@ -22,7 +22,15 @@ namespace Protocol
 					return null;
 				}
 
-				return Client?.GetStream();
+				try
+				{
+					return Client?.GetStream();
+				}
+				catch (InvalidOperationException)
+				{
+					Dispose();
+					return null;
+				}
 			}
 		}
 

@@ -5,25 +5,45 @@
     xmlns:local="using:UWPClient"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+	Background="{ThemeResource SystemChromeLowColor}">
 
-    <Grid Background="{ThemeResource SystemChromeLowColor}">
+	<Page.Resources>
+		<CollectionViewSource x:Key="Usernames" x:Name="Usernames" IsSourceGrouped="True" />
+	</Page.Resources>
+
+	<Grid Margin="10">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition/>
+			<ColumnDefinition Width="10"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
 
 		<Grid.RowDefinitions>
-			<RowDefinition Height="45"/>
-			<RowDefinition Height="45"/>
+			<RowDefinition Height="35"/>
+			<RowDefinition Height="10"/>
+			<RowDefinition Height="35"/>
+			<RowDefinition Height="10"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
-		<Button Content="Add user" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="OnAddUserButtonClick"/>
+		<Button Content="Add user" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnAddUserButtonClick"/>
 		
-		<Button Content="Remove user" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsEnabled="False" Click="OnRemoveUserButtonClick"/>
+		<Button x:Name="RemoveButton" Content="Remove user" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEnabled="False" Click="OnRemoveUserButtonClick"/>
 
-		<ListView x:Name="UsernameList" Grid.Row="2" Grid.Column="1"/>
+		<ListView x:Name="UsernameList" Grid.Row="4" Grid.Column="2" SelectionChanged="OnUsernameListSelectionChanged" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource Usernames}}">
+
+			<ListView.GroupStyle>
+				<GroupStyle>
+					<GroupStyle.HeaderTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Key}"/>
+						</DataTemplate>
+					</GroupStyle.HeaderTemplate>
+				</GroupStyle>
+			</ListView.GroupStyle>
+			
+		</ListView>
 
 	</Grid>
 </Page>

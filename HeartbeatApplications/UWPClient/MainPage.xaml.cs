@@ -30,6 +30,7 @@ namespace UWPClient
 		{
 			this.InitializeComponent();
 			this.Loaded += OnLoaded;
+			this.SizeChanged += (sender, e) => LoadData();
 		}
 
 		private void OnLoaded(object sender, RoutedEventArgs e)
@@ -54,7 +55,7 @@ namespace UWPClient
 
 		private void LoadData()
 		{
-			if (Data.Count() == 0)
+			if ((Data?.Count() ?? 0) == 0)
 			{
 				Data = null;
 			}
@@ -64,16 +65,29 @@ namespace UWPClient
 			if (Data != null)
 			{
 				DateTimeAxis XAxis = (DateTimeAxis)((LineSeries)HeartbeatChart.Series[0]).ActualIndependentAxis;
+				XAxis.ShowGridLines = true;
 
 				XAxis.Minimum = null;
 				XAxis.Maximum = null;
 
 				XAxis.Minimum = StartDate.DateTime;
 				XAxis.Maximum = EndDate.DateTime;
-				XAxis.IntervalType = DateTimeIntervalType.Auto;
+
+				TimeSpan Span = EndDate - StartDate;
+
+				if (Span.TotalHours <= 48)
+				{
+					XAxis.IntervalType = DateTimeIntervalType.Hours;
+					XAxis.Interval = Math.Round((EndDate - StartDate).TotalHours / HeartbeatChart.ActualWidth * 100);
+				}
+				else
+				{
+					XAxis.IntervalType = DateTimeIntervalType.Days;
+					XAxis.Interval = Math.Max(1, Math.Round((EndDate - StartDate).TotalDays / HeartbeatChart.ActualWidth * 100));
+				}
 			}
 
-			CurrentlyViewingDisplay.Text = $"Currently viewing user: {ChosenUsername}";
+			CurrentlyViewingDisplay.Text = $"Currently viewing user: {ChosenUsername}\nHighest BPM value: {Data?.Max(x => x.Value) ?? float.NaN}\nLowest BPM Value: {Data?.Min(x => x.Value) ?? float.NaN}\nAverage BPM Value: {Data?.Average(x => x.Value) ?? float.NaN}";
 		}
 
 		private async void SearchUserTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -139,7 +153,8 @@ namespace UWPClient
 				EndDatePicker.Date = StartDatePicker.Date;
 			}
 
-			EndDate = EndDate.Date;
+			EndDate = EndDatePicker.Date;
+			LoadData();
 		}
 
 		private void OnStartDatePickerChanged(object sender, DatePickerValueChangedEventArgs e)
@@ -150,6 +165,7 @@ namespace UWPClient
 			}
 
 			StartDate = StartDatePicker.Date;
+			LoadData();
 		}
 
 		private void OnUpdateDataClick(object sender, RoutedEventArgs e)

@@ -24,7 +24,8 @@ namespace Server
 				new GetViewableUsersProcessingModule(),
 				new GetUserDataProcessingModule(),
 				new AddUserViewPermissionProcessingModule(),
-				new RemoveUserViewPermissionProcessingModule()
+				new RemoveUserViewPermissionProcessingModule(),
+				new GetViewingUsersProcessingModule()
 				);
 		}
 

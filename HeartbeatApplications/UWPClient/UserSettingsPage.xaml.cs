@@ -17,13 +17,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace UWPClient
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
 	public sealed partial class UserSettingsPage : Page
 	{
 		public UserSettingsPage()
@@ -43,7 +38,7 @@ namespace UWPClient
 
 		public async Task UpdateList()
 		{
-			UsernameList.ItemsSource = (await NetworkManager.GetViewableUsers(int.MaxValue, string.Empty)).SkipWhile(x => x == NetworkManager.CurrentUsername);
+			Usernames.Source = (await NetworkManager.GetViewingUsers()).GroupBy(x => char.ToUpper(x.First())).OrderBy(x => x.Key);
 		}
 
 		private void OnUserSettingsPageBackRequested(object sender, BackRequestedEventArgs e)
@@ -61,22 +56,38 @@ namespace UWPClient
 		{
 			AddUserDialog Dialog = new AddUserDialog();
 			await Dialog.ShowAsync();
-			string FailReason = await NetworkManager.AddUserViewPermission(Dialog.Username);
 
-			if (FailReason != null)
+			if (!Dialog.Cancelled)
 			{
-				MessageDialog Message = new MessageDialog(FailReason, "Error");
-				await Message.ShowAsync();
-			}
-			else
-			{
-				await UpdateList();
+				string FailReason = await NetworkManager.AddUserViewPermission(Dialog.Username);
+
+				if (FailReason != null)
+				{
+					MessageDialog Message = new MessageDialog(FailReason, "Error");
+					await Message.ShowAsync();
+				}
+				else
+				{
+					await UpdateList();
+				}
 			}
 		}
 
-		private void OnRemoveUserButtonClick(object sender, RoutedEventArgs e)
+		private async void OnRemoveUserButtonClick(object sender, RoutedEventArgs e)
 		{
+			for (int i = 0; i < UsernameList.SelectedItems.Count; i++)
+			{
+				NetworkManager.RemoveUserViewPermission((string)UsernameList.SelectedItems[i]);
+			}
 
+			await Task.Delay(100); // Wait for the server to process the info
+
+			await UpdateList();
+		}
+
+		private void OnUsernameListSelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			RemoveButton.IsEnabled = UsernameList.SelectedItems.Any();
 		}
 	}
 }

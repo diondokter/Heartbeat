@@ -13,13 +13,12 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace UWPClient
 {
 	public sealed partial class AddUserDialog : ContentDialog
 	{
 		public string Username;
+		public bool Cancelled;
 
 		public AddUserDialog()
 		{
@@ -34,12 +33,25 @@ namespace UWPClient
 
 		private void OnCancelButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
 		{
-			
+			Cancelled = true;
 		}
 
 		private void OnTextChanged(object sender, TextChangedEventArgs e)
 		{
 			Username = ((TextBox)sender).Text;
+		}
+
+		private void OnTextBoxKeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key == Windows.System.VirtualKey.Enter)
+			{
+				Hide();
+			}
+			else if(e.Key == Windows.System.VirtualKey.Escape)
+			{
+				Cancelled = true;
+				Hide();
+			}
 		}
 	}
 }

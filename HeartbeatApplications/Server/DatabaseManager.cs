@@ -93,11 +93,11 @@ namespace Server
 
 		public static void RemoveUserViewPermission(string Caller, string Username)
 		{
-			DB.Table<UserViewPermission>().Delete(x => x.Username == Caller && x.ViewedUsername == Username);
+			DB.Table<UserViewPermission>().Delete(x => x.Username == Username && x.ViewedUsername == Caller);
 			DB.Commit();
 		}
 
-		public static List<string> GetViewPermissions(string Caller)
+		public static List<string> GetViewablePermissions(string Caller)
 		{
 			List<UserViewPermission> Permissions = DB.Table<UserViewPermission>().Where(x => x.Username == Caller).ToList();
 			List<string> PermissionNames = Permissions.Select(x => x.ViewedUsername).ToList();
@@ -105,9 +105,15 @@ namespace Server
 			return PermissionNames;
 		}
 
-		public static string[] GetViewPermissionsContaining(string Caller, string Value, int MaxAmount)
+		public static string[] GetViewablePermissionsContaining(string Caller, string Value, int MaxAmount)
 		{
-			return GetViewPermissions(Caller).Where(x => x.Contains(Value)).Take(MaxAmount).ToArray();
+			return GetViewablePermissions(Caller).Where(x => x.Contains(Value)).Take(MaxAmount).ToArray();
+		}
+
+		public static string[] GetViewingPermissions(string Caller)
+		{
+			List<UserViewPermission> Permissions = DB.Table<UserViewPermission>().Where(x => x.ViewedUsername == Caller).ToList();
+			return Permissions.Select(x => x.Username).ToArray();
 		}
 
 		public static bool HasViewUserPermission(string Caller, string Username)
