@@ -4,15 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{E8D872A2-E7E4-4597-B967-8BEA2D9D571E}</ProjectGuid>
+    <ProjectGuid>{DC35FD11-06D5-4D9C-87B6-9F1DEE108B6F}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UWPBackgroundServer</RootNamespace>
-    <AssemblyName>Heartbeat UWP Background Server</AssemblyName>
+    <AssemblyName>UWPBackgroundServer</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.14393.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.10586.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
@@ -96,6 +96,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logger.cs" />
     <Compile Include="StartupTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

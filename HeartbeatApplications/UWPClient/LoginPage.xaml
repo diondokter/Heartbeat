@@ -19,5 +19,7 @@
 		<Button Content="Login" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnLoginClick" Margin="10"/>
 
 		<Button Content="Create account" Grid.Column="1" Grid.Row="7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="OnCreateAccountClick" Margin="10"/>
+
+		<TextBox x:Name="ServerHostBox" Margin="10" Opacity="0.2" TextChanging="OnServerHostBoxTextChanging" LosingFocus="ServerHostBox_LosingFocus"/>
 	</StackPanel>
 </Page>

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Server
 {
-    public interface ILogger
+	public interface ILogger
     {
 		void OnLogReceived(string Log);
     }

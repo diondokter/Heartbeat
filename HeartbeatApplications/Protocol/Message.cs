@@ -62,8 +62,14 @@ namespace Protocol
 				throw new NotSupportedException($"{nameof(TargetStream)} can't be written to. Provide a write enabled stream.");
 			}
 
+			try
+			{
+				Serializer.SerializeWithLengthPrefix(TargetStream, this, PrefixStyle.Base128);
+			}
+			catch (IOException)
+			{
 
-			Serializer.SerializeWithLengthPrefix(TargetStream, this, PrefixStyle.Base128);
+			}
 		}
 
 		public static Message DeserializeFrom(Stream TargetStream)

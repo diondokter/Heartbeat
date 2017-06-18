@@ -8,6 +8,7 @@ namespace Client
 {
     public static class NetworkManager
     {
+		public static string ServerHost = "localhost";
 		public static string CurrentUsername { get; private set; }
 
 		private static NetworkClient _Connection;
@@ -17,7 +18,7 @@ namespace Client
 			{
 				if (!_Connection?.IsConnected ?? true)
 				{
-					_Connection = new NetworkClient(IPAddress.Loopback, 5000);
+					_Connection = new NetworkClient(ServerHost, 5000);
 				}
 
 				return _Connection;
@@ -29,6 +30,11 @@ namespace Client
 			try
 			{
 				LoginResponse Response = await Connection.Send<LoginResponse>(new LoginRequest() { Username = Username, Password = Password });
+
+				if (Response == null)
+				{
+					return (false, "No response.");
+				}
 
 				if (Response.Accepted)
 				{
@@ -104,6 +110,11 @@ namespace Client
 		public static void RemoveUserViewPermission(string Username)
 		{
 			Connection.Send(new RemoveUserViewPermissionMessage() { Username = Username });
+		}
+
+		public static void AddUserData(DateTime Time, float BPMValue)
+		{
+			Connection.Send(new AddUserDataMessage() { Timestamp = Time, BPMValue = BPMValue });
 		}
 	}
 }

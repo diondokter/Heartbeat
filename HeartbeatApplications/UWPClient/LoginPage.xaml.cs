@@ -31,6 +31,7 @@ namespace UWPClient
 		public LoginPage()
 		{
 			this.InitializeComponent();
+			Loaded += (sender, e) => ServerHostBox.Text = NetworkManager.ServerHost;
 		}
 
 #if DEBUG
@@ -74,17 +75,24 @@ namespace UWPClient
 		{
 			if (await CheckUsername() && await CheckPassword())
 			{
-				(bool Accepted, string Reason) = await NetworkManager.CreateAccount(Username, Password);
-
-				if (!Accepted || Reason != null)
+				try
 				{
-					MessageDialog LoginDialog = new MessageDialog(Reason, Accepted ? "Successful" : "Failed");
-					await LoginDialog.ShowAsync();
+					(bool Accepted, string Reason) = await NetworkManager.CreateAccount(Username, Password);
+
+					if (!Accepted || Reason != null)
+					{
+						MessageDialog LoginDialog = new MessageDialog(Reason, Accepted ? "Successful" : "Failed");
+						await LoginDialog.ShowAsync();
+					}
+
+					if (Accepted)
+					{
+						LoadMainPage();
+					}
 				}
-
-				if (Accepted)
+				catch (Exception ex)
 				{
-					LoadMainPage();
+					Debug.WriteLine(ex);
 				}
 			}
 		}
@@ -142,6 +150,16 @@ namespace UWPClient
 		private void LoadMainPage()
 		{
 			App.RootFrame.Navigate(typeof(MainPage));
+		}
+
+		private void OnServerHostBoxTextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+		{
+			NetworkManager.ServerHost = ServerHostBox.Text;
+		}
+
+		private void ServerHostBox_LosingFocus(UIElement sender, LosingFocusEventArgs args)
+		{
+			NetworkManager.ServerHost = ServerHostBox.Text;
 		}
 	}
 }

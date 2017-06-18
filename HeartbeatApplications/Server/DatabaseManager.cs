@@ -9,6 +9,7 @@ namespace Server
 {
     public static class DatabaseManager
     {
+		private const int MaxDataLength = 200;
 		private static SQLiteConnection DB;
 
 		public static void Initialize()
@@ -31,16 +32,6 @@ namespace Server
 			if (DB.Table<User>().FirstOrDefault(x => x.Username == Value.Username) == null)
 			{
 				DB.Insert(Value);
-
-				for (int i = 0; i < 100; i++)
-				{
-					AddUserData(new UserData()
-					{
-						Username = Value.Username,
-						Time = DateTime.Now.AddHours(-i),
-						Value = i
-					});
-				}
 				DB.Commit();
 				return true;
 			}
@@ -126,16 +117,6 @@ namespace Server
 			return DB.Table<UserViewPermission>().Any(x => x.Username == Caller && x.ViewedUsername == Username);
 		}
 
-		public static UserData[] GetUserData(string Caller, string TargetUsername)
-		{
-			if (!HasViewUserPermission(Caller, TargetUsername))
-			{
-				return null;
-			}
-
-			return DB.Table<UserData>().Where(x => x.Username == TargetUsername).ToArray();
-		}
-
 		public static UserData[] GetUserData(string Caller, string TargetUsername, DateTime StartDate, DateTime EndDate)
 		{
 			if (!HasViewUserPermission(Caller, TargetUsername))
@@ -143,9 +124,30 @@ namespace Server
 				return null;
 			}
 
-			DateTime RealEnddate = EndDate.AddDays(1).AddMilliseconds(-1);
+			UserData[] TableData = DB.Table<UserData>().Where(x => x.Username == TargetUsername && x.Time >= StartDate.Date && x.Time <= EndDate).ToArray();
 
-			return DB.Table<UserData>().Where(x => x.Username == TargetUsername && x.Time >= StartDate.Date && x.Time <= RealEnddate).ToArray();
+			TimeSpan TotalTime = EndDate - StartDate;
+			TimeSpan DeltaTime = TimeSpan.FromMinutes(TotalTime.TotalMinutes / (MaxDataLength - 1));
+
+			UserData[] ReducedData = new UserData[MaxDataLength];
+
+			for (int i = 0; i < MaxDataLength; i++)
+			{
+				IEnumerable<UserData> PeriodData = TableData.Where(x => x.Time > StartDate + TimeSpan.FromMinutes(DeltaTime.TotalMinutes * i) && x.Time < StartDate + TimeSpan.FromMinutes(DeltaTime.TotalMinutes * (i + 1)));
+
+				UserData CombinedData = new UserData();
+				CombinedData.Time = StartDate + TimeSpan.FromMinutes(DeltaTime.TotalMinutes * i);
+
+				if (PeriodData.Any())
+				{
+					CombinedData.Username = PeriodData.First().Username;
+					CombinedData.Value = PeriodData.Average(x => x.Value);
+				}
+
+				ReducedData[i] = CombinedData;
+			}
+
+			return ReducedData;
 		}
 	}
 }

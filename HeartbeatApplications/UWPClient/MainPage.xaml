@@ -52,8 +52,7 @@
 			<Button Margin="0,10"
 					HorizontalAlignment="Stretch"
 					x:Name="ConnectToBaseStationButton"
-					Content="Connect to Base Station"
-					IsEnabled="False"/>
+					Content="Connect to Base Station" Click="OnConnectToBaseStationButtonClick"/>
 
 			<Button Content="Update data"
 					HorizontalAlignment="Stretch"
@@ -73,9 +72,23 @@
 		</Grid>
 
 
-		<StackPanel Grid.Column="3" Grid.Row="1">
-			<TextBlock x:Name="CurrentlyViewingDisplay" Text="Currently viewed user: XXXXXXXXXXXXXX" TextWrapping="WrapWholeWords" HorizontalAlignment="Stretch"/>
-		</StackPanel>
+		<Grid Grid.Column="3" Grid.Row="1">
+
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			
+			<TextBlock x:Name="CurrentlyViewingDisplay" Text="Currently viewed user: XXXXXXXXXXXXXX" TextWrapping="WrapWholeWords" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="0"/>
+
+			<Frame Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{ThemeResource SystemBaseLowColor}" BorderThickness="2" BorderBrush="{ThemeResource SystemBaseMediumLowColor}" Padding="2">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Margin="0,0,10,0" Text="Current BPM:" VerticalAlignment="Center"/>
+					<TextBlock x:Name="LiveBPMDisplay" FontSize="40" Text="Not Connected"/>
+				</StackPanel>
+			</Frame>
+			
+		</Grid>
 
 		<ScrollViewer Grid.Column="3" Grid.Row="3" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 

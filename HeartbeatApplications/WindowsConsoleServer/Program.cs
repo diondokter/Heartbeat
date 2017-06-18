@@ -12,14 +12,9 @@ namespace WindowsConsoleServer
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("On which port should the server run?");
-			int Port;
-
-			while (!int.TryParse(Console.ReadLine(), out Port)) { }
-
 			Console.WriteLine("\nStarting the server. Press 'q' tot quit the program.");
 
-			Controller.Start(Port, new Logger());
+			Controller.Start(5000, new Logger());
 
 			while (Console.ReadKey().KeyChar != 'q')
 			{

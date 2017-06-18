@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -13,6 +14,7 @@ namespace Protocol
 	{
 		private List<Response> ResponseBuffer = new List<Response>();
 		private TcpClient Client;
+		private NetworkStream _Connection;
 		private NetworkStream Connection
 		{
 			get
@@ -22,15 +24,20 @@ namespace Protocol
 					return null;
 				}
 
-				try
+				if (_Connection == null)
 				{
-					return Client?.GetStream();
+					try
+					{
+						_Connection = Client?.GetStream();
+					}
+					catch (InvalidOperationException)
+					{
+						Dispose();
+						return null;
+					}
 				}
-				catch (InvalidOperationException)
-				{
-					Dispose();
-					return null;
-				}
+
+				return _Connection;
 			}
 		}
 
@@ -62,18 +69,25 @@ namespace Protocol
 			new Task(LoopReceive).Start();
 		}
 
-		public NetworkClient(IPAddress ServerIP, int Port, params MessageProcessingModule[] ProcessingModules)
+		public NetworkClient(string Host, int Port, params MessageProcessingModule[] ProcessingModules)
 		{
 			Client = new TcpClient(AddressFamily.InterNetwork);
 			this.ProcessingModules = ProcessingModules;
 
-			Connect(ServerIP, Port);
+			Connect(Host, Port);
 		}
 
-		private async void Connect(IPAddress ServerIP, int Port)
+		private async void Connect(string Host, int Port)
 		{
-			await Client.ConnectAsync(ServerIP, Port);
-			new Task(LoopReceive).Start();
+			try
+			{
+				await Client.ConnectAsync(Host, Port);
+				new Task(LoopReceive).Start();
+			}
+			catch(Exception e)
+			{
+				Debug.WriteLine(e);
+			}
 		}
 
 		public void Send(Message Value)
@@ -91,12 +105,19 @@ namespace Protocol
 
 		public async Task<T> Send<T>(Request Value, long WaitTime = 2000) where T:Response
 		{
-			Send(Value);
+			try
+			{
+				Send(Value);
+			}
+			catch (IOException)
+			{
+				return null;
+			}
 
 			T Response = null;
 			Stopwatch Watch = Stopwatch.StartNew();
 
-			while (Response == null && Watch.ElapsedMilliseconds < WaitTime)
+			while (Response == null && Watch.ElapsedMilliseconds < WaitTime && !Disposed)
 			{
 				lock (ResponseBuffer)
 				{
